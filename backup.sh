@@ -27,9 +27,16 @@ for f in $(ls -tr "$LOG_DIR"); do
     FREED_KB=$((FREED_KB + FILE_KB))
 done
 mkdir -p "$BACKUP_DIR"
-ARCHIVE="$BACKUP_DIR/backup_$(date +%Y%m%d_%H%M%S).tar.gz"
+if [ "$LAB1_MAX_COMPRESSION" = "1" ]; then
+    TAR_KEY="--lzma"
+    EXT="tar.lzma"
+else
+    TAR_KEY="-z"
+    EXT="tar.gz"
+fi
+ARCHIVE="$BACKUP_DIR/backup_$(date +%Y%m%d_%H%M%S).$EXT"
 echo "Архивация в $ARCHIVE..."
-tar -czf "$ARCHIVE" -C "$LOG_DIR" $FILES
+tar -c $TAR_KEY -f "$ARCHIVE" -C "$LOG_DIR" $FILES
 if [ $? -eq 0 ]; then
     for f in $FILES; do
         rm "$LOG_DIR/$f"
